@@ -4,7 +4,7 @@ A simple CLI utility for keeping track of allocations
 # Installation
 Requires `gawk`
 
-```
+```bash
 # install gawk on ubuntu 
 sudo apt-get install gawk
 
@@ -14,25 +14,25 @@ brew install gawk
 
 Set default text editor for manually chaning allocations file
 
-```
+```bash
 echo export EDITOR="vim" >> ~/.bashrc
 ```
 
 Clone repo and copy `timecard` to path folder
 
-```
+```bash
 cp timecard /usr/local/bin
 ```
 
 Add alias to `.bashrc`
 
-```
+```bash
 echo alias t="timecard" >> ~/.bashrc`
 ```
 
 # Usage
 
-```
+```bash
 # add 15 hour allocation to gsa project
 t gsa 15
 
