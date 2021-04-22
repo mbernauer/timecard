@@ -27,7 +27,7 @@ cp timecard /usr/local/bin
 Add alias to `.bashrc`
 
 ```bash
-echo alias t="timecard" >> ~/.bashrc`
+echo alias t="timecard" >> ~/.bashrc
 ```
 
 # Usage
