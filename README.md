@@ -12,7 +12,7 @@ sudo apt-get install gawk
 brew install gawk
 ```
 
-Set default text editor for manually chaning allocations file
+Set default text editor for manually changing allocation file
 
 ```bash
 echo export EDITOR="vim" >> ~/.bashrc
