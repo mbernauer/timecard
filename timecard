@@ -1,0 +1,94 @@
+#!/usr/bin/env bash
+
+DBPATH=~/.timecards
+
+if [ $(( $(date +%V) % 2)) -eq 0 ]
+	then
+		TIMECARD=$(date +%Y-%V)
+	else
+		TIMECARD=$(date +%Y)-$(($(date +%V)-1))
+fi
+
+[ ! -d $DBPATH ] && mkdir $DBPATH
+
+read -r -d '' HELP << EOM
+usage: tc PROGRAM
+Tool for logging and managing time
+positional arguments:
+  PROJECT			name of project to log hours
+  TIME				hours logged (e.g. +1, -0.25)
+optional arguments:
+  -r, --report		generate time report
+EOM
+
+log_time () {
+	echo $(date +%m/%d)'	'$1'	'$2 >> $DBPATH/$TIMECARD
+} 
+
+generate_report () {
+	gawk '
+	BEGIN {
+		FS="\t"
+		OFS="\t"
+	}
+	{ proj[$2]++
+	}
+	$3 ~ /-/{
+		logged[$2,$1]+=$3
+		daily[$1]+=$3
+		used[$2]+=$3
+	}
+	$3 !~ /-/{
+		total[$2]+=$3
+	}
+	END {
+		print "ALLOCATIONS:\n"
+		printf "    %-15s    %-5s    %-4s    %-6s\n", "Project", "Total", "Used", "Remain"
+		printf "    %-15s    %-5s    %-4s    %-6s\n", "---------------", "-----", "----", "------"
+		for(i in proj){
+			printf "    %-15s    %-5s    %-4s    %-6s\n", i, 1*total[i], -1*used[i], total[i]+used[i]
+		}
+
+		print "\nTOTALS:\n"
+		printf "    %-5s    %-5s\n", "Date","Hrs"
+		printf "    %-5s    %-5s\n", "-----","-----"
+		n = asorti(daily,vals)
+		for(i=1;i<=n;i++){
+			printf "    %-5s    %-5s\n",vals[i],daily[vals[i]]
+		}
+
+		print "\nLOG:\n"
+		printf "    %-5s    %-15s    %-5s\n", "Date", "Project", "Hrs"
+		printf "    %-5s    %-15s    %-5s\n", "-----","---------------", "-----"
+		for(i in logged){
+			split(i,s,SUBSEP)
+			printf "    %-5s    %-15s    %-5s\n",s[2], s[1], -1*logged[i] | "sort"
+		}
+
+	}' $DBPATH/$TIMECARD
+}
+
+while [[ $# -gt 0 ]]
+do
+key="$1"
+
+case "$key" in
+	-r|--report)	
+	generate_report
+	exit
+	;;
+	-h|--help)
+	echo "$HELP"
+	exit
+	;;
+	-e|--edit)
+	$EDITOR $DBPATH/$TIMECARD
+	exit
+	;;
+	*)
+	log_time $1 $2
+	shift
+	shift
+	;;
+esac
+done
